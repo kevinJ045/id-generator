@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ID Card Generator</title>
+	<style>
+		*:not(#idCard){
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+			background: <%= background %>;
+			color: #black;
+			font-family: Arial, sans-serif;
+		}
+
+		#idCard {
+			width: 400px; /* 4:3 aspect ratio */
+			height: auto;
+			position: relative;
+			max-width: 90%;
+			aspect-ratio: 4/3;
+			background: rgba(<%= data.card.background %>, <%= data.card.background_opacity %>);
+			border-radius: <%= data.card.border_radius %>;
+			overflow: hidden;
+			padding: <%= data.card.padding || 0 %>px;
+		}
+
+		#avatar {
+			width: 30%;
+			height: 100%;
+			position: absolute;
+			padding: 10px;
+			grid-row: span 2;
+			background: rgba(<%= data.card.avatar_background %>, <%= data.card.avatar_background_opacity %>);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		#avatar_image {
+			position: relative;
+			max-width: 100%;
+			max-height: 100%;
+			min-width: 100%;
+			border-radius: 50%;
+			aspect-ratio: 1/1;
+		}
+
+		#fields {
+			padding: 20px;
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 10px;
+			overflow: auto;
+			height: calc(100% - 60px);
+			position: absolute;
+			top: 30px;
+		}
+
+		#fields p {
+			margin: 0;
+		}
+
+		#side-2{
+			position: absolute;
+			width: 70%;
+			left: 30%;
+			height: 100%;
+		}
+
+		#card-title, #first-field, #card-footer{
+			font-weight: 900;
+			text-align: center;
+			padding: 10px 0;
+		}
+		#card-footer {
+			font-size: 14px;
+			width: 100%;
+			position: absolute;
+			bottom: <%= data.card.padding ? data.card.padding+5 : 5 %>px;
+			padding: 0;
+		}
+
+		#avatar_image{
+			transition: .5s;
+		}
+
+		#avatar_image.unloaded{
+			opacity: 0;
+		}
+
+		#link-top{
+			position: absolute;
+			top: <%= data.card.padding ? data.card.padding+5 : 5 %>px;
+		}
+		#link-bottom{
+			position: absolute;
+			bottom: <%= data.card.padding ? data.card.padding+5 : 5 %>px;
+			text-align: center;
+			padding: 0;
+		}
+	</style>
+</head>
+<body>
+
+	<div id="idCard">
+		<div id="avatar">
+			<div>
+				<% if(Array.isArray(data.links?.top)){ %>
+					<a <%= data.links?.top_link_new_tab ? 'target=_blank' : '' %> id="link-top" href="<%= data.links?.top[1] %>">
+						<% if(data.links?.top[0].startsWith('img:')) { %> 
+							<img width="<%= data.links?.top_icon_width || 32 %>px" height="<%= data.links?.top_icon_heigh || 32 %>px" src="<%= data.links?.top[0].split('img:')[1] %>">
+						<% } else { %>
+							<%= data.links?.top[0] %>
+						<% } %>
+					</a>
+				<% } %>
+
+
+				<img id="avatar_image" class="unloaded" src="" alt="Avatar">
+
+
+				<div id="first-field">
+					<%= data.fields[Object.keys(data.fields).shift()] %>
+					<% data.options.display_first ? "" : delete data.fields[Object.keys(data.fields).shift()] %>
+				</div>
+
+				<% if(Array.isArray(data.links?.bottom)){ %>
+					<a <%= data.links?.bottom_link_new_tab ? 'target=_blank' : '' %> id="link-bottom" href="<%= data.links?.bottom[1] %>">
+						<% if(data.links?.bottom[0].startsWith('img:')) { %> 
+							<img width="<%= data.links?.bottom_icon_width || 32 %>px" height="<%= data.links?.bottom_icon_heigh || 32 %>px" src="<%= data.links?.bottom[0].split('img:')[1] %>">
+						<% } else { %>
+							<%= data.links?.bottom[0] %>
+						<% } %>
+					</a>
+				<% } %>
+			</div>
+		</div>
+		<div id="side-2">
+			<div id="card-title"><%= data.title %></div>
+			<div id="fields">
+			
+				<% for(let i in data.fields) { %>
+					<p><strong><%= i %>:</strong> <%= data.fields[i] %></p>
+				<% } %>
+			</div>
+			<div id="card-footer"><%= data.footer %></div>
+		</div>
+	</div>
+
+	<script>
+		console.log(<%= data.card.padding || 0 %>);
+		window.addEventListener('load', () => {
+			const avatar_url = "<%= data.avatar %>";
+			const img = document.createElement('img');
+			const avatar = document.getElementById('avatar_image');
+			img.onload = () => {
+				avatar.src = avatar_url;
+				avatar.classList.remove('unloaded')
+			}
+			img.src = avatar_url;
+		});
+	</script>
+
+</body>
+</html>
